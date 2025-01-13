@@ -255,7 +255,69 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'scalameta/nvim-metals',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      {
+        'j-hui/fidget.nvim',
+        opts = {},
+      },
+      {
+        'mfussenegger/nvim-dap',
+        config = function(self, opts)
+          -- Debug settings if you're using nvim-dap
+          local dap = require 'dap'
+        end,
+      },
+    },
+    ft = { 'scala', 'sbt', 'java' },
+    opts = function()
+      local metals_config = require('metals').bare_config()
 
+      -- Example of settings
+      metals_config.settings = {
+        showImplicitArguments = true,
+        excludedPackages = { 'akka.actor.typed.javadsl', 'com.github.swagger.akka.javadsl' },
+        scalafmtConfigPath = nil,
+      }
+
+      -- *READ THIS*
+      -- I *highly* recommend setting statusBarProvider to either "off" or "on"
+      --
+      -- "off" will enable LSP progress notifications by Metals and you'll need
+      -- to ensure you have a plugin like fidget.nvim installed to handle them.
+      --
+      -- "on" will enable the custom Metals status extension and you *have* to have
+      -- a have settings to capture this in your statusline or else you'll not see
+      -- any messages from metals. There is more info in the help docs about this
+      -- metals_config.init_options.statusBarProvider = 'off'
+      metals_config.init_options = {
+        statusBarProvider = 'off',
+        isHttpEnabled = true,
+      }
+
+      -- Example if you are using cmp how to make sure the correct capabilities for snippets are set
+      metals_config.capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+      metals_config.on_attach = function(client, bufnr)
+        require('metals').setup_dap()
+        client.server_capabilities.documentFormattingProvider = false
+      end
+
+      return metals_config
+    end,
+    config = function(self, metals_config)
+      local nvim_metals_group = vim.api.nvim_create_augroup('nvim-metals', { clear = true })
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = self.ft,
+        callback = function()
+          require('metals').initialize_or_attach(metals_config)
+        end,
+        group = nvim_metals_group,
+      })
+    end,
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -927,12 +989,12 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
@@ -968,3 +1030,5 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+--
+vim.keymap.set('n', '<leader>e', '<cmd-Neotree toggle<CR>', { desc = 'Open Neotree' })
