@@ -182,7 +182,7 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
---  Use CTRL+<hjkl> to switch between windows
+-- Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
@@ -246,6 +246,16 @@ require('lazy').setup({
   --
 
   {
+    '3rd/image.nvim',
+    opts = {},
+  },
+
+  {
+    'olimorris/onedarkpro.nvim',
+    priority = 1000, -- Ensure it loads first
+  },
+
+  {
     'akinsho/toggleterm.nvim',
     version = '*',
     config = true,
@@ -258,7 +268,7 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim',
       'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
       'MunifTanjim/nui.nvim',
-      -- {"3rd/image.nvim", opts = {}}, -- Optional image support in preview window: See `# Preview Mode` for more information
+      { '3rd/image.nvim', opts = {} }, -- Optional image support in preview window: See `# Preview Mode` for more information
     },
   },
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -695,9 +705,9 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -705,7 +715,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
@@ -1051,3 +1061,6 @@ require('lazy').setup({
 --
 vim.keymap.set('n', '<leader>e', '<cmd>Neotree toggle<CR>', { desc = 'Open Neotree' })
 vim.keymap.set('n', '<leader>a', '<cmd>ToggleTerm<CR>', { desc = 'Open Terminal' })
+vim.keymap.set('n', '<M-j>', '5j', { desc = 'Move 5 lines down' })
+vim.keymap.set('n', '<M-k>', '5k', { desc = 'Move 5 lines up' })
+vim.cmd 'colorscheme onedark_dark'
